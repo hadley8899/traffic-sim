@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Engine } from "./app/Engine";
 import { useStore } from "./ui/store";
 import { Controls } from "./ui/Controls";
@@ -8,6 +8,7 @@ import { ChartPanel } from "./ui/ChartPanel";
 export function App() {
   const hostRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<Engine | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Mount the engine once against the canvas host.
   useEffect(() => {
@@ -56,9 +57,31 @@ export function App() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
+      <button
+        className="sidebar-toggle"
+        aria-label={sidebarOpen ? "Close controls" : "Open controls"}
+        onClick={() => setSidebarOpen((o) => !o)}
+      >
+        {sidebarOpen ? "✕" : "☰"}
+      </button>
+
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          role="button"
+          tabIndex={0}
+          aria-label="Close controls"
+          onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === "Escape") setSidebarOpen(false);
+          }}
+        />
+      )}
+
+      <aside className={`sidebar${sidebarOpen ? " sidebar--open" : ""}`}>
         <Controls />
       </aside>
+
       <main className="viewport">
         <div ref={hostRef} className="canvas-host" />
         <Stats />
